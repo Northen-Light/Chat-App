@@ -1,16 +1,17 @@
-import { useNavigation } from '@react-navigation/native';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { View, Text, StyleSheet, Button } from 'react-native';
+import { ChatsStackParamList } from '../navigation/types';
 
-export function ChatsListingPage() {
-  const navigation = useNavigation();
+type Props = NativeStackScreenProps<ChatsStackParamList, 'ChatListing'>;
 
+export function ChatsListingPage({ navigation }: Props) {
   return (
     <View style={styles.chatsListingContainer}>
       <Text style={styles.headerText}> Chats Listing Page</Text>
       <View style={styles.separator} />
       <Button
         title="Go to chat details"
-        onPress={() => navigation.navigate('chat-details')}
+        onPress={() => navigation.navigate('ChatDetails')}
       />
     </View>
   );

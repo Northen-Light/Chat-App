@@ -1,18 +1,19 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { ChatDetailsPage, ChatsListingPage } from '../pages';
+import { ChatDetailsPage, ChatsListingPage } from '../screens';
+import { ChatsStackParamList } from './types';
 
-const Stack = createNativeStackNavigator();
+const Stack = createNativeStackNavigator<ChatsStackParamList>();
 
 export function ChatsStack() {
   return (
     <Stack.Navigator>
       <Stack.Screen
-        name="chat-listing"
+        name="ChatListing"
         component={ChatsListingPage}
         options={{ headerTitle: 'Chats' }}
       />
       <Stack.Screen
-        name="chat-details"
+        name="ChatDetails"
         component={ChatDetailsPage}
         options={{ headerTitle: 'Details' }}
       />

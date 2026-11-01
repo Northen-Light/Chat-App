@@ -6,7 +6,7 @@ import { BottomTabs } from './navigation/BottomTabs';
 
 function App() {
   return (
-    <SafeAreaView style={styles.appContainer}>
+    <SafeAreaView style={styles.appContainer} edges={['top', 'left', 'right']}>
       <StatusBar barStyle="dark-content" />
       <AppContent />
     </SafeAreaView>
