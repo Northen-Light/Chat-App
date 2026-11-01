@@ -1,17 +1,51 @@
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { View, Text, StyleSheet, Button } from 'react-native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { View, Text, StyleSheet, FlatList, Pressable } from 'react-native';
 import { ChatsStackParamList } from '../navigation/types';
+import { chatsList } from '../mock/chatsListdata';
+import { useNavigation } from '@react-navigation/native';
+import { memo } from 'react';
 
-type Props = NativeStackScreenProps<ChatsStackParamList, 'ChatListing'>;
+type ChatListingNavigationProp = NativeStackNavigationProp<
+  ChatsStackParamList,
+  'ChatListing'
+>;
 
-export function ChatsListingPage({ navigation }: Props) {
+type ListItem = {
+  id: string;
+  profileIcon: string;
+  phoneNumber: string;
+  lastMessage: {
+    text: string;
+    time: string;
+  };
+};
+
+type ListItemProps = {
+  item: ListItem;
+};
+
+const ListItem = memo(function ({ item }: ListItemProps) {
+  const navigation = useNavigation<ChatListingNavigationProp>();
+
+  return (
+    <Pressable
+      style={styles.chatItemContainer}
+      onPress={() => navigation.navigate('ChatDetails')}
+    >
+      <Text>{item.phoneNumber}</Text>
+      <Text>{item.lastMessage.text}</Text>
+    </Pressable>
+  );
+});
+
+export function ChatsListingPage() {
   return (
     <View style={styles.chatsListingContainer}>
-      <Text style={styles.headerText}> Chats Listing Page</Text>
-      <View style={styles.separator} />
-      <Button
-        title="Go to chat details"
-        onPress={() => navigation.navigate('ChatDetails')}
+      <FlatList
+        style={styles.flatlistContainer}
+        data={chatsList}
+        renderItem={({ item }) => <ListItem item={item} />}
+        keyExtractor={item => item.id}
       />
     </View>
   );
@@ -20,8 +54,10 @@ export function ChatsListingPage({ navigation }: Props) {
 const styles = StyleSheet.create({
   chatsListingContainer: {
     flex: 1,
-    justifyContent: 'center',
+    width: '100%',
     alignItems: 'center',
+    paddingHorizontal: 32,
+    justifyContent: 'center',
   },
   separator: {
     marginVertical: 16,
@@ -29,5 +65,15 @@ const styles = StyleSheet.create({
   headerText: {
     fontSize: 24,
     color: 'black',
+  },
+  chatItemContainer: {
+    height: 60,
+    borderWidth: 1,
+    borderRadius: 4,
+    marginVertical: 16,
+    borderColor: 'black',
+  },
+  flatlistContainer: {
+    width: '100%',
   },
 });
