@@ -7,11 +7,11 @@ import {
   ActivityIndicator,
   Image,
 } from 'react-native';
+import { FlashList } from '@shopify/flash-list';
 import { ChatsStackParamList } from '../navigation/types';
 import { useNavigation } from '@react-navigation/native';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { fetchChatsListingdata } from '../network/fetchChatsListingData';
-import { FlashList } from '@shopify/flash-list';
 
 type ChatListingNavigationProp = NativeStackNavigationProp<
   ChatsStackParamList,
