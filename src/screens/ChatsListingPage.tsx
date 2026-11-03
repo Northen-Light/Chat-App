@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { ChatsStackParamList } from '../navigation/types';
 import { useNavigation } from '@react-navigation/native';
-import { memo, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { fetchChatsListingdata } from '../network/fetchChatsListingData';
 
 type ChatListingNavigationProp = NativeStackNavigationProp<
@@ -57,27 +57,28 @@ export function ChatsListingPage() {
   const [chatsList, setChatsList] = useState<ChatListItem[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
 
-  const page = useRef<number>(0);
+  const pageNumber = useRef<number>(0);
   const pageItems = useRef<number>(15);
+  const isPageEnd = useRef<boolean>(false);
 
-  const loadNextPageChats = async () => {
+  const loadNextPageChats = useCallback(async () => {
     setLoading(true);
 
-    const data = await fetchChatsListingdata(
-      page.current * pageItems.current,
+    const response = await fetchChatsListingdata(
+      pageNumber.current,
       pageItems.current,
     );
 
-    setChatsList(list => [...list, ...data]);
-
+    setChatsList(list => [...list, ...response.data]);
     setLoading(false);
 
-    page.current++;
-  };
+    isPageEnd.current = response.pageEnd;
+    pageNumber.current++;
+  }, []);
 
   useEffect(() => {
     loadNextPageChats();
-  }, []);
+  }, [loadNextPageChats]);
 
   return (
     <View style={styles.chatsListingContainer}>
@@ -87,7 +88,7 @@ export function ChatsListingPage() {
         style={styles.flatlistContainer}
         onEndReachedThreshold={0.75}
         onEndReached={() => {
-          if (chatsList.length < 50) {
+          if (!isPageEnd.current) {
             loadNextPageChats();
           }
         }}

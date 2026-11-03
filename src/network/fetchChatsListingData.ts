@@ -1,13 +1,24 @@
 import { chatsList } from '../mock/chatsListdata';
 import type { ChatListItem } from '../screens/ChatsListingPage';
 
+type ChatListingDataResponse = {
+  data: ChatListItem[];
+  pageEnd: boolean;
+};
+
 export function fetchChatsListingdata(
-  start: number,
-  count: number = 15,
-): Promise<ChatListItem[]> {
+  pageNumber: number,
+  pageItems: number = 15,
+): Promise<ChatListingDataResponse> {
   return new Promise(res => {
     setTimeout(() => {
-      res(chatsList.slice(start, Math.min(start + count, chatsList.length)));
+      const start = pageNumber * pageItems;
+      const end = Math.min(start + pageItems, chatsList.length);
+
+      res({
+        data: chatsList.slice(start, end),
+        pageEnd: end === chatsList.length,
+      });
     }, 2000);
   });
 }
