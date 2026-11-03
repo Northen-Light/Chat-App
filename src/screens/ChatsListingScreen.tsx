@@ -3,7 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  FlatList,
   Pressable,
   ActivityIndicator,
   Image,
@@ -12,6 +11,7 @@ import { ChatsStackParamList } from '../navigation/types';
 import { useNavigation } from '@react-navigation/native';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { fetchChatsListingdata } from '../network/fetchChatsListingData';
+import { FlashList } from '@shopify/flash-list';
 
 type ChatListingNavigationProp = NativeStackNavigationProp<
   ChatsStackParamList,
@@ -55,11 +55,11 @@ const ChatListItem = memo(function ({ item }: ListItemProps) {
 
 export function ChatsListingScreen() {
   const [chatsList, setChatsList] = useState<ChatListItem[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState(false);
 
-  const pageNumber = useRef<number>(0);
-  const pageItems = useRef<number>(15);
-  const isPageEnd = useRef<boolean>(false);
+  const pageNumber = useRef(0);
+  const pageItems = useRef(15);
+  const isPageEnd = useRef(false);
 
   const loadNextPageChats = useCallback(async () => {
     setLoading(true);
@@ -82,7 +82,7 @@ export function ChatsListingScreen() {
 
   return (
     <View style={styles.chatsListingContainer}>
-      <FlatList
+      <FlashList
         data={chatsList}
         keyExtractor={item => item.id}
         style={styles.flatlistContainer}
