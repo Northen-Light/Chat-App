@@ -1,15 +1,15 @@
 import { View, Text, StyleSheet } from 'react-native';
 
-export function ProfilePage() {
+export function RecentCallsScreen() {
   return (
-    <View style={styles.profileContainer}>
-      <Text style={styles.headerText}> Profile Page</Text>
+    <View style={styles.recentCallsContainer}>
+      <Text style={styles.headerText}> Recent Calls Screen</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  profileContainer: {
+  recentCallsContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',

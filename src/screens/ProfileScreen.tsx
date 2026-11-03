@@ -1,15 +1,15 @@
 import { View, Text, StyleSheet } from 'react-native';
 
-export function ChatDetailsPage() {
+export function ProfileScreen() {
   return (
-    <View style={styles.chatDetailsContainer}>
-      <Text style={styles.headerText}>Chat details page</Text>
+    <View style={styles.profileContainer}>
+      <Text style={styles.headerText}> Profile Screen</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  chatDetailsContainer: {
+  profileContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',

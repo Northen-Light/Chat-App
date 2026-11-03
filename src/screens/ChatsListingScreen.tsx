@@ -53,7 +53,7 @@ const ChatListItem = memo(function ({ item }: ListItemProps) {
   );
 });
 
-export function ChatsListingPage() {
+export function ChatsListingScreen() {
   const [chatsList, setChatsList] = useState<ChatListItem[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
 

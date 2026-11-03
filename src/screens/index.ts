@@ -1,4 +1,4 @@
-export { ChatsListingPage } from './ChatsListingPage';
-export { ProfilePage } from './ProfilePage';
-export { RecentCallsPage } from './RecentCallsPage';
-export { ChatDetailsPage } from './ChatDetails';
+export { ChatsListingScreen } from './ChatsListingScreen';
+export { ProfileScreen } from './ProfileScreen';
+export { RecentCallsScreen } from './RecentCallsScreen';
+export { ChatDetailsScreen } from './ChatDetailsScreen';

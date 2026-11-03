@@ -1,5 +1,5 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { ChatDetailsPage, ChatsListingPage } from '../screens';
+import { ChatDetailsScreen, ChatsListingScreen } from '../screens';
 import { ChatsStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<ChatsStackParamList>();
@@ -9,12 +9,12 @@ export function ChatsStack() {
     <Stack.Navigator>
       <Stack.Screen
         name="ChatListing"
-        component={ChatsListingPage}
+        component={ChatsListingScreen}
         options={{ headerTitle: 'Chats' }}
       />
       <Stack.Screen
         name="ChatDetails"
-        component={ChatDetailsPage}
+        component={ChatDetailsScreen}
         options={{ headerTitle: 'Details' }}
       />
     </Stack.Navigator>

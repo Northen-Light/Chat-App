@@ -1,6 +1,6 @@
 import { createNativeBottomTabNavigator } from '@react-navigation/bottom-tabs/unstable';
 import { trigger } from 'react-native-haptic-feedback';
-import { ProfilePage, RecentCallsPage } from '../screens';
+import { ProfileScreen, RecentCallsScreen } from '../screens';
 import { ChatsStack } from './ChatsStack';
 import { BottomTabsParamList } from './types';
 import { Platform } from 'react-native';
@@ -41,7 +41,7 @@ export function BottomTabs() {
       />
       <Tab.Screen
         name="Calls"
-        component={RecentCallsPage}
+        component={RecentCallsScreen}
         options={{
           tabBarIcon:
             Platform.OS === 'ios'
@@ -57,7 +57,7 @@ export function BottomTabs() {
       />
       <Tab.Screen
         name="Profile"
-        component={ProfilePage}
+        component={ProfileScreen}
         options={{
           tabBarIcon:
             Platform.OS === 'ios'
