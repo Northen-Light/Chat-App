@@ -6,7 +6,7 @@ type ChatListingDataResponse = {
   pageEnd: boolean;
 };
 
-export function fetchChatsListingdata(
+export function fetchChatsListingData(
   pageNumber: number,
   pageItems: number = 15,
 ): Promise<ChatListingDataResponse> {

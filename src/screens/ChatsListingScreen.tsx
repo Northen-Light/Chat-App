@@ -1,4 +1,4 @@
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import {
   View,
   Text,
@@ -11,7 +11,7 @@ import { FlashList } from '@shopify/flash-list';
 import { ChatsStackParamList } from '../navigation/types';
 import { useNavigation } from '@react-navigation/native';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
-import { fetchChatsListingdata } from '../network/fetchChatsListingData';
+import { fetchChatsListingData } from '../network/fetchChatsListingData';
 
 type ChatListingNavigationProp = NativeStackNavigationProp<
   ChatsStackParamList,
@@ -38,6 +38,9 @@ type FilterListItem = {
 };
 
 type ListItem = ChatListItem | FilterListItem;
+
+const PAGE_SIZE = 15;
+const FILTER_TEXT = ['All', 'Favourites'];
 
 const ChatListItem = memo(function ({ item }: { item: ChatListItem }) {
   const navigation = useNavigation<ChatListingNavigationProp>();
@@ -66,11 +69,10 @@ const ChatListItem = memo(function ({ item }: { item: ChatListItem }) {
 
 function Filter() {
   const [selected, setSelected] = useState(0);
-  const filterText = ['All', 'Favourites'];
 
   return (
     <View style={styles.filterContainer}>
-      {filterText.map((text, index) => (
+      {FILTER_TEXT.map((text, index) => (
         <Pressable onPress={() => setSelected(index)} key={text}>
           <Text
             style={
@@ -96,31 +98,37 @@ export function ChatsListingScreen() {
   const [loading, setLoading] = useState(false);
 
   const pageNumber = useRef(0);
-  const pageItems = useRef(15);
   const isPageEnd = useRef(false);
+  const isLoading = useRef(false);
 
   const loadChatsList = useCallback(async () => {
+    if (isLoading.current || isPageEnd.current) return;
+
+    isLoading.current = true;
     setLoading(true);
 
-    const response = await fetchChatsListingdata(
-      pageNumber.current,
-      pageItems.current,
-    );
+    try {
+      const response = await fetchChatsListingData(
+        pageNumber.current,
+        PAGE_SIZE,
+      );
 
-    setListData(list => [
-      ...list,
-      ...response.data.map(
-        (data): ListItem => ({
-          type: 'chatListItem',
-          data,
-        }),
-      ),
-    ]);
+      setListData(list => [
+        ...list,
+        ...response.data.map(
+          (data): ListItem => ({
+            type: 'chatListItem',
+            data,
+          }),
+        ),
+      ]);
 
-    setLoading(false);
-
-    isPageEnd.current = response.pageEnd;
-    pageNumber.current++;
+      isPageEnd.current = response.pageEnd;
+      pageNumber.current++;
+    } finally {
+      isLoading.current = false;
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -134,11 +142,7 @@ export function ChatsListingScreen() {
         stickyHeaderIndices={[0]}
         style={styles.flatlistContainer}
         onEndReachedThreshold={0.75}
-        onEndReached={() => {
-          if (!isPageEnd.current) {
-            loadChatsList();
-          }
-        }}
+        onEndReached={loadChatsList}
         renderItem={({ item }: { item: ListItem }) => {
           switch (item.type) {
             case 'chatListItem':
@@ -149,11 +153,7 @@ export function ChatsListingScreen() {
         }}
         ListFooterComponent={
           <View style={styles.mt16}>
-            <ActivityIndicator
-              size="large"
-              color="blue"
-              animating={loading === true}
-            />
+            <ActivityIndicator size="large" color="blue" animating={loading} />
           </View>
         }
       />
@@ -167,13 +167,6 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  separator: {
-    marginVertical: 16,
-  },
-  headerText: {
-    fontSize: 24,
-    color: 'black',
   },
   chatItemContainer: {
     height: 60,
@@ -207,15 +200,6 @@ const styles = StyleSheet.create({
   },
   messageText: {
     fontWeight: '300',
-  },
-  loadingViewContainer: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: '100%',
-    height: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   filterContainer: {
     flexDirection: 'row',
