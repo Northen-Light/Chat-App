@@ -18,7 +18,7 @@ type ChatListingNavigationProp = NativeStackNavigationProp<
   'ChatListing'
 >;
 
-export type ChatListItem = {
+export type Chat = {
   id: string;
   profileIcon: string;
   phoneNumber: string;
@@ -28,24 +28,35 @@ export type ChatListItem = {
   };
 };
 
-type ListItemProps = {
-  item: ChatListItem;
+type ChatListItem = {
+  type: 'chatListItem';
+  data: Chat;
 };
 
-const ChatListItem = memo(function ({ item }: ListItemProps) {
+type FilterListItem = {
+  type: 'filterItem';
+};
+
+type ListItem = ChatListItem | FilterListItem;
+
+const ChatListItem = memo(function ({ item }: { item: ChatListItem }) {
   const navigation = useNavigation<ChatListingNavigationProp>();
-  const date = item.lastMessage.time.split('T')[0].split('-');
+
+  const date = item.data.lastMessage.time.split('T')[0].split('-');
 
   return (
     <Pressable
       style={styles.chatItemContainer}
       onPress={() => navigation.navigate('ChatDetails')}
     >
-      <Image style={styles.profileIcon} source={{ uri: item.profileIcon }} />
+      <Image
+        style={styles.profileIcon}
+        source={{ uri: item.data.profileIcon }}
+      />
       <View style={styles.rightContainer}>
         <View>
-          <Text style={styles.contactInfoText}>{item.phoneNumber}</Text>
-          <Text style={styles.messageText}>{item.lastMessage.text}</Text>
+          <Text style={styles.contactInfoText}>{item.data.phoneNumber}</Text>
+          <Text style={styles.messageText}>{item.data.lastMessage.text}</Text>
         </View>
         <Text>{`${date[1]}/${date[2]}`}</Text>
       </View>
@@ -53,15 +64,42 @@ const ChatListItem = memo(function ({ item }: ListItemProps) {
   );
 });
 
+function Filter() {
+  const [selected, setSelected] = useState(0);
+  const filterText = ['All', 'Favourites'];
+
+  return (
+    <View style={styles.filterContainer}>
+      {filterText.map((text, index) => (
+        <Pressable onPress={() => setSelected(index)} key={text}>
+          <Text
+            style={
+              selected === index
+                ? // eslint-disable-next-line react-native/no-inline-styles
+                  { ...styles.filterButtonStyle, backgroundColor: '#ccc' }
+                : styles.filterButtonStyle
+            }
+          >
+            {text}
+          </Text>
+        </Pressable>
+      ))}
+    </View>
+  );
+}
+
 export function ChatsListingScreen() {
-  const [chatsList, setChatsList] = useState<ChatListItem[]>([]);
+  const [listData, setListData] = useState<ListItem[]>([
+    { type: 'filterItem' },
+  ]);
+
   const [loading, setLoading] = useState(false);
 
   const pageNumber = useRef(0);
   const pageItems = useRef(15);
   const isPageEnd = useRef(false);
 
-  const loadNextPageChats = useCallback(async () => {
+  const loadChatsList = useCallback(async () => {
     setLoading(true);
 
     const response = await fetchChatsListingdata(
@@ -69,7 +107,16 @@ export function ChatsListingScreen() {
       pageItems.current,
     );
 
-    setChatsList(list => [...list, ...response.data]);
+    setListData(list => [
+      ...list,
+      ...response.data.map(
+        (data): ListItem => ({
+          type: 'chatListItem',
+          data,
+        }),
+      ),
+    ]);
+
     setLoading(false);
 
     isPageEnd.current = response.pageEnd;
@@ -77,30 +124,39 @@ export function ChatsListingScreen() {
   }, []);
 
   useEffect(() => {
-    loadNextPageChats();
-  }, [loadNextPageChats]);
+    loadChatsList();
+  }, [loadChatsList]);
 
   return (
     <View style={styles.chatsListingContainer}>
       <FlashList
-        data={chatsList}
-        keyExtractor={item => item.id}
+        data={listData}
+        stickyHeaderIndices={[0]}
         style={styles.flatlistContainer}
         onEndReachedThreshold={0.75}
         onEndReached={() => {
           if (!isPageEnd.current) {
-            loadNextPageChats();
+            loadChatsList();
           }
         }}
-        renderItem={({ item }) => <ChatListItem item={item} />}
+        renderItem={function ({ item }: { item: ListItem }) {
+          switch (item.type) {
+            case 'chatListItem':
+              return <ChatListItem item={item} />;
+            case 'filterItem':
+              return <Filter />;
+          }
+        }}
+        ListFooterComponent={
+          <View style={styles.mt16}>
+            <ActivityIndicator
+              size="large"
+              color="blue"
+              animating={loading === true}
+            />
+          </View>
+        }
       />
-      <View style={styles.loadingViewContainer}>
-        <ActivityIndicator
-          size="large"
-          color="blue"
-          animating={loading === true}
-        />
-      </View>
     </View>
   );
 }
@@ -128,10 +184,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 8,
+    marginHorizontal: 16,
   },
   flatlistContainer: {
     width: '100%',
-    paddingHorizontal: 16,
   },
   profileIcon: {
     width: 48,
@@ -160,5 +216,21 @@ const styles = StyleSheet.create({
     height: '100%',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  filterContainer: {
+    flexDirection: 'row',
+    paddingVertical: 16,
+    zIndex: 1,
+    backgroundColor: 'white',
+  },
+  filterButtonStyle: {
+    padding: 8,
+    borderRadius: 8,
+    borderColor: 'black',
+    borderWidth: 1,
+    marginLeft: 16,
+  },
+  mt16: {
+    marginTop: 16,
   },
 });

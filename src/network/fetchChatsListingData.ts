@@ -1,8 +1,8 @@
 import { chatsList } from '../mock/chatsListdata';
-import type { ChatListItem } from '../screens/ChatsListingScreen';
+import type { Chat } from '../screens/ChatsListingScreen';
 
 type ChatListingDataResponse = {
-  data: ChatListItem[];
+  data: Chat[];
   pageEnd: boolean;
 };
 
