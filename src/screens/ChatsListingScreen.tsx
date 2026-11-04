@@ -139,7 +139,7 @@ export function ChatsListingScreen() {
             loadChatsList();
           }
         }}
-        renderItem={function ({ item }: { item: ListItem }) {
+        renderItem={({ item }: { item: ListItem }) => {
           switch (item.type) {
             case 'chatListItem':
               return <ChatListItem item={item} />;
