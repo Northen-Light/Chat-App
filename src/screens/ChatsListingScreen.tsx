@@ -75,12 +75,10 @@ function Filter() {
       {FILTER_TEXT.map((text, index) => (
         <Pressable onPress={() => setSelected(index)} key={text}>
           <Text
-            style={
-              selected === index
-                ? // eslint-disable-next-line react-native/no-inline-styles
-                  { ...styles.filterButtonStyle, backgroundColor: '#ccc' }
-                : styles.filterButtonStyle
-            }
+            style={[
+              styles.filterButton,
+              index === selected && styles.filterButtonSelected,
+            ]}
           >
             {text}
           </Text>
@@ -207,12 +205,20 @@ const styles = StyleSheet.create({
     zIndex: 1,
     backgroundColor: 'white',
   },
-  filterButtonStyle: {
+  filterButton: {
     padding: 8,
     borderRadius: 8,
     borderColor: 'black',
     borderWidth: 1,
     marginLeft: 16,
+  },
+  filterButtonSelected: {
+    padding: 8,
+    borderRadius: 8,
+    borderColor: 'black',
+    borderWidth: 1,
+    marginLeft: 16,
+    backgroundColor: '#ccc',
   },
   mt16: {
     marginTop: 16,
