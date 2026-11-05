@@ -134,6 +134,7 @@ export function ChatsListingScreen() {
       switch (index) {
         case 0: {
           const listDataCopy: ListItem[] = [];
+
           listDataCopy.push({ type: 'filterItem' });
 
           listDataCopy.push(
