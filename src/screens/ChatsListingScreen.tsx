@@ -67,49 +67,31 @@ const ChatListItem = memo(function ({ item }: { item: ChatListItem }) {
   );
 });
 
-function Filter() {
-  const [selected, setSelected] = useState(0);
-
-  return (
-    <View style={styles.filterContainer}>
-      {FILTER_TEXT.map((text, index) => (
-        <Pressable onPress={() => setSelected(index)} key={text}>
-          <Text
-            style={[
-              styles.filterButton,
-              index === selected && styles.filterButtonSelected,
-            ]}
-          >
-            {text}
-          </Text>
-        </Pressable>
-      ))}
-    </View>
-  );
-}
-
 export function ChatsListingScreen() {
+  const [chatData, setChatData] = useState<Chat[]>([]);
   const [listData, setListData] = useState<ListItem[]>([
     { type: 'filterItem' },
   ]);
-
+  const [selected, setSelected] = useState(0);
   const [loading, setLoading] = useState(false);
 
-  const pageNumber = useRef(0);
-  const isPageEnd = useRef(false);
   const isLoading = useRef(false);
+  const isInitiaload = useRef(true);
+  const hasMore = useRef(false);
+  const selectedIndex = useRef(0);
+  const pageNumber = useRef(0);
 
   const loadChatsList = useCallback(async () => {
-    if (isLoading.current || isPageEnd.current) return;
-
-    isLoading.current = true;
     setLoading(true);
+    isLoading.current = true;
 
     try {
       const response = await fetchChatsListingData(
         pageNumber.current,
         PAGE_SIZE,
       );
+
+      setChatData(data => [...data, ...response.data]);
 
       setListData(list => [
         ...list,
@@ -121,26 +103,106 @@ export function ChatsListingScreen() {
         ),
       ]);
 
-      isPageEnd.current = response.pageEnd;
+      hasMore.current = !response.pageEnd;
       pageNumber.current++;
     } finally {
+      isInitiaload.current = false;
       isLoading.current = false;
       setLoading(false);
     }
   }, []);
 
+  const onEndReachedCallback = () => {
+    if (
+      selectedIndex.current !== 0 ||
+      isInitiaload.current ||
+      isLoading.current ||
+      !hasMore.current
+    )
+      return;
+
+    loadChatsList();
+  };
+
+  const onFilterSelect = useCallback(
+    (index: number) => {
+      selectedIndex.current = index;
+      setSelected(index);
+
+      switch (index) {
+        case 0: {
+          const listDataCopy: ListItem[] = [];
+          listDataCopy.push({ type: 'filterItem' });
+
+          listDataCopy.push(
+            ...chatData.map(
+              (data): ListItem => ({
+                type: 'chatListItem',
+                data,
+              }),
+            ),
+          );
+
+          setListData(listDataCopy);
+
+          break;
+        }
+        case 1: {
+          const userIds = [12, 23, 32, 45, 50];
+          const listDataCopy: ListItem[] = [];
+
+          listDataCopy.push({ type: 'filterItem' });
+
+          listDataCopy.push(
+            ...chatData
+              .filter(data => userIds.includes(Number(data.id)))
+              .map(
+                (data): ListItem => ({
+                  type: 'chatListItem',
+                  data,
+                }),
+              ),
+          );
+
+          setListData(listDataCopy);
+
+          break;
+        }
+      }
+    },
+    [chatData],
+  );
+
   useEffect(() => {
     loadChatsList();
   }, [loadChatsList]);
+
+  const Filter = useCallback(() => {
+    return (
+      <View style={styles.filterContainer}>
+        {FILTER_TEXT.map((text, index) => (
+          <Pressable onPress={() => onFilterSelect(index)} key={text}>
+            <Text
+              style={[
+                styles.filterButton,
+                index === selected && styles.filterButtonSelected,
+              ]}
+            >
+              {text}
+            </Text>
+          </Pressable>
+        ))}
+      </View>
+    );
+  }, [selected, onFilterSelect]);
 
   return (
     <View style={styles.chatsListingContainer}>
       <FlashList
         data={listData}
-        stickyHeaderIndices={[0]}
         style={styles.flatlistContainer}
         onEndReachedThreshold={0.75}
-        onEndReached={loadChatsList}
+        onEndReached={onEndReachedCallback}
         renderItem={({ item }: { item: ListItem }) => {
           switch (item.type) {
             case 'chatListItem':
