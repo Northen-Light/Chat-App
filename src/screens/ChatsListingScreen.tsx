@@ -75,14 +75,13 @@ export function ChatsListingScreen() {
   ]);
   const [selected, setSelected] = useState(0);
   const [loading, setLoading] = useState(false);
+  const userData = useUserData();
 
   const isLoading = useRef(false);
   const isInitiaload = useRef(true);
   const hasMore = useRef(false);
   const selectedIndex = useRef(0);
   const pageNumber = useRef(0);
-
-  const userContextValue = useUserData();
 
   const loadChatsList = useCallback(async () => {
     setLoading(true);
@@ -158,7 +157,7 @@ export function ChatsListingScreen() {
           listDataCopy.push(
             ...chatData
               .filter(data =>
-                userContextValue.favouriteUserIds.includes(Number(data.id)),
+                userData.favouriteUserIds.includes(Number(data.id)),
               )
               .map(
                 (data): ListItem => ({
@@ -174,7 +173,7 @@ export function ChatsListingScreen() {
         }
       }
     },
-    [chatData, userContextValue],
+    [chatData, userData],
   );
 
   useEffect(() => {
