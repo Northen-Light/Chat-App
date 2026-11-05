@@ -12,6 +12,7 @@ import { ChatsStackParamList } from '../navigation/types';
 import { useNavigation } from '@react-navigation/native';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { fetchChatsListingData } from '../network/fetchChatsListingData';
+import { useUserData } from '../context/UserDataProvider';
 
 type ChatListingNavigationProp = NativeStackNavigationProp<
   ChatsStackParamList,
@@ -81,6 +82,8 @@ export function ChatsListingScreen() {
   const selectedIndex = useRef(0);
   const pageNumber = useRef(0);
 
+  const userContextValue = useUserData();
+
   const loadChatsList = useCallback(async () => {
     setLoading(true);
     isLoading.current = true;
@@ -148,14 +151,15 @@ export function ChatsListingScreen() {
           break;
         }
         case 1: {
-          const userIds = [12, 23, 32, 45, 50];
           const listDataCopy: ListItem[] = [];
 
           listDataCopy.push({ type: 'filterItem' });
 
           listDataCopy.push(
             ...chatData
-              .filter(data => userIds.includes(Number(data.id)))
+              .filter(data =>
+                userContextValue.favouriteUserIds.includes(Number(data.id)),
+              )
               .map(
                 (data): ListItem => ({
                   type: 'chatListItem',
@@ -170,7 +174,7 @@ export function ChatsListingScreen() {
         }
       }
     },
-    [chatData],
+    [chatData, userContextValue],
   );
 
   useEffect(() => {

@@ -3,14 +3,22 @@ import { StatusBar, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { BottomTabs } from './navigation/BottomTabs';
+import { UserDataProvider } from './context/UserDataProvider';
+import { ReactElement } from 'react';
 
 function App() {
   return (
     <SafeAreaView style={styles.appContainer} edges={['top', 'left', 'right']}>
       <StatusBar barStyle="dark-content" />
-      <AppContent />
+      <AppProvider>
+        <AppContent />
+      </AppProvider>
     </SafeAreaView>
   );
+}
+
+function AppProvider({ children }: { children: ReactElement }) {
+  return <UserDataProvider>{children}</UserDataProvider>;
 }
 
 function AppContent() {
