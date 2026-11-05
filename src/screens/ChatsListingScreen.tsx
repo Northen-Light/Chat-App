@@ -126,56 +126,48 @@ export function ChatsListingScreen() {
     loadChatsList();
   };
 
-  const onFilterSelect = useCallback(
-    (index: number) => {
-      selectedIndex.current = index;
-      setSelected(index);
+  useEffect(() => {
+    switch (selected) {
+      case 0: {
+        const listDataCopy: ListItem[] = [];
 
-      switch (index) {
-        case 0: {
-          const listDataCopy: ListItem[] = [];
+        listDataCopy.push({ type: 'filterItem' });
 
-          listDataCopy.push({ type: 'filterItem' });
+        listDataCopy.push(
+          ...chatData.map(
+            (data): ListItem => ({
+              type: 'chatListItem',
+              data,
+            }),
+          ),
+        );
 
-          listDataCopy.push(
-            ...chatData.map(
+        setListData(listDataCopy);
+
+        break;
+      }
+      case 1: {
+        const listDataCopy: ListItem[] = [];
+
+        listDataCopy.push({ type: 'filterItem' });
+
+        listDataCopy.push(
+          ...chatData
+            .filter(data => userData.favouriteUserIds.includes(Number(data.id)))
+            .map(
               (data): ListItem => ({
                 type: 'chatListItem',
                 data,
               }),
             ),
-          );
+        );
 
-          setListData(listDataCopy);
+        setListData(listDataCopy);
 
-          break;
-        }
-        case 1: {
-          const listDataCopy: ListItem[] = [];
-
-          listDataCopy.push({ type: 'filterItem' });
-
-          listDataCopy.push(
-            ...chatData
-              .filter(data =>
-                userData.favouriteUserIds.includes(Number(data.id)),
-              )
-              .map(
-                (data): ListItem => ({
-                  type: 'chatListItem',
-                  data,
-                }),
-              ),
-          );
-
-          setListData(listDataCopy);
-
-          break;
-        }
+        break;
       }
-    },
-    [chatData, userData],
-  );
+    }
+  }, [chatData, selected, userData]);
 
   useEffect(() => {
     loadChatsList();
@@ -185,7 +177,13 @@ export function ChatsListingScreen() {
     return (
       <View style={styles.filterContainer}>
         {FILTER_TEXT.map((text, index) => (
-          <Pressable onPress={() => onFilterSelect(index)} key={text}>
+          <Pressable
+            onPress={() => {
+              selectedIndex.current = index;
+              setSelected(index);
+            }}
+            key={text}
+          >
             <Text
               style={[
                 styles.filterButton,
@@ -198,13 +196,14 @@ export function ChatsListingScreen() {
         ))}
       </View>
     );
-  }, [selected, onFilterSelect]);
+  }, [selected]);
 
   return (
     <View style={styles.chatsListingContainer}>
       <FlashList
         data={listData}
         style={styles.flatlistContainer}
+        stickyHeaderIndices={[0]}
         onEndReachedThreshold={0.75}
         onEndReached={onEndReachedCallback}
         renderItem={({ item }: { item: ListItem }) => {
